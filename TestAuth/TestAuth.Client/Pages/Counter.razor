@@ -1,0 +1,43 @@
+﻿@page "/counter"
+@using TestAuth.Client.Services
+@inject ICustomLocalStorageService CustomLocalStorage
+
+<PageTitle>Counter</PageTitle>
+
+
+
+<CascadingAuthenticationState>
+    <AuthorizeView>
+        <Authorized>
+            <h1>Counter</h1>
+
+            <p role="status">Current count: @currentCount</p>
+
+            <button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+
+            <dl>
+                @foreach (var claim in @context.User.Claims)
+                {
+                    <dt>@claim.Type</dt>
+                    <dd>@claim.Value</dd>
+                }
+            </dl>
+        </Authorized>
+    </AuthorizeView>
+</CascadingAuthenticationState>
+@code {
+    private int currentCount = 0;
+    private System.Security.Claims.ClaimsPrincipal? user;
+    private void IncrementCount()
+    {
+        currentCount++;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+
+        await CustomLocalStorage.SetItemAsync("testKey", "testValue");
+        var value = await CustomLocalStorage.GetItemAsync<string>("testKey");
+        Console.WriteLine(value);
+    }
+}
